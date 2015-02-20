@@ -1,34 +1,58 @@
-## Put comments here that give an overall description of what your
-## functions do
+## These functions save computational work in calculating the inverse
+## of a matrix by caching the calculation of the matrix. 
+##
+## The makeCacheMatrix sets this up by wrapping a matrix in an object which 
+## can later be acted on by the cacheSolve command to either calculate and return
+## the inverse or report the cached value.
+##
+## These functions also show off lexical scoping and the <<- operation.
 
-## Write a short comment describing this function
+## Function creates and object wrapper for a matrix.  The Object (which is actually
+## a list) has methods (list entries which are functions) that get and set the 
+## underlying matrix and get and set the associated inverse.
 
 makeCacheMatrix <- function(x = matrix()) {
-     mat <- x
-     inverse <- NULL
-     get <- function() x
+     mat <- x  # set the underlying matrix
+     inverse <- NULL # default for the underlying inverse
+     
+     ## get function to return the underlying matrix
+     get <- function() mat
+     
+     ## set function to set/change the underlying matrix
      set <- function(y = matrix()) {
-          x <<- y
-          inverse <<- NULL
+          mat <<- y       ## set the underlying value using <<- to get the value in the makeCacheMatrix
+          inverse <<- NULL  ## reset the inverse
      }
+     
+     ## get function for the inverse
      getInverse <- function()inverse
+     
+     # set function for the inverse
      setInverse <- function(inv = matrix()){
-          inverse <<- inv
+          inverse <<- inv  ##set the underlying value using <<-
      }
+     ##return the functions as a list
      list(get = get, set = set, getInverse = getInverse, setInverse = setInverse)
      
 }
 
 
-## Write a short comment describing this function
+## solves for the inverse of the underlyingn matrix for an object(list) produced
+## by mackeCache
+## Assumes the matrix that underlies x is invertable
 
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
+     
+        ## first check to see if the inverse has already been calculated.  If so,
+        ## return the cached value
         if(!is.null(x$getInverse())){
              message("Getting cached Data")
              return(x$getInverse())
         }
+        
+        ## Otherwise calculate it and store it away in the matrix wrapper object
         inv <- solve(x$get())
         x$setInverse(inv)
-        inv
+        inv ## report the inverse as the return value for the function
 }
